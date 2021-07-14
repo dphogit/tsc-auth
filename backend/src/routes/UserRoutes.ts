@@ -13,7 +13,8 @@ class HelloRoutes {
   }
 
   public initializeRoutes() {
-    this.router.post("/register", this.controller.registerUser);
+    this.router.post("/register", this.controller.register);
+    this.router.post("/authenticate", this.controller.authenticate);
   }
 }
 
