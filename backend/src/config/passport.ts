@@ -9,12 +9,10 @@ const LocalStrategy = passportLocal.Strategy;
 
 export function sessionSetup() {
   passport.serializeUser((user, done) => {
-    console.log("Serialize: " + (user as User).userId);
     done(null, (user as User).userId);
   });
 
   passport.deserializeUser((id: number, done) => {
-    console.log("Deserialize: " + id);
     const userRepo = getRepository(User);
     userRepo
       .findOne(id)
@@ -29,26 +27,24 @@ export function localStrategySetup() {
   passport.use(
     new LocalStrategy(
       { usernameField: "email", passwordField: "password" },
-      (username, password, done) => {
+      async (username, password, done) => {
         const userRepo = getRepository(User);
 
-        userRepo
-          .findOne({ email: username })
-          .then((user) => {
-            if (!user) {
-              return done(null, false, { message: "No user with that email" });
-            }
+        try {
+          const user = await userRepo.findOne({ email: username });
+          if (!user) {
+            return done(null, false);
+          }
 
-            bcrypt.compare(password, user.password).then((match) => {
-              if (!match) {
-                return done(null, false, {
-                  message: "Not a matching password",
-                });
-              }
-              return done(null, user);
-            });
-          })
-          .catch((err) => done(err));
+          const match = await bcrypt.compare(password, user.password);
+          if (!match) {
+            return done(null, false);
+          }
+
+          return done(null, user);
+        } catch (err) {
+          done(err);
+        }
       }
     )
   );

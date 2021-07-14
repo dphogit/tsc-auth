@@ -1,4 +1,4 @@
-import express from "express";
+import express, { Application, Request, Response, NextFunction } from "express";
 import passport from "passport";
 import session from "express-session";
 
@@ -8,12 +8,14 @@ import Routes from "./routes";
 const SESSION_SECRET = <string>process.env.SESSION_SECRET;
 
 export default class Server {
-  constructor(app: express.Application) {
-    this.config(app); // Middleware Configuration
-    new Routes(app); // Route Configuration
+  constructor(app: Application) {
+    this.config(app);
+    new Routes(app);
+    app.use(this.notFoundHandler);
+    app.use(this.errorHandler);
   }
 
-  public config(app: express.Application): void {
+  private config(app: Application): void {
     // Add middleware here
     app.use(express.urlencoded({ extended: true }));
     app.use(express.json());
@@ -28,5 +30,30 @@ export default class Server {
     app.use(passport.session());
     localStrategySetup();
     sessionSetup();
+  }
+
+  private errorHandler(
+    err: Error,
+    _req: Request,
+    res: Response,
+    _next: NextFunction
+  ) {
+    res.status(500).json({
+      status: "error",
+      data: {
+        name: err.name,
+        message: err.message,
+        stack: err.stack,
+      },
+    });
+  }
+
+  private notFoundHandler(_req: Request, res: Response) {
+    res.status(404).json({
+      status: "failed",
+      data: {
+        reason: "Request endpoint was not found.",
+      },
+    });
   }
 }

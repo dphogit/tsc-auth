@@ -10,7 +10,11 @@ const SECRET = <string>process.env.JWT_SECRET;
 const EXPIRE = 86400000;
 
 class UserController {
-  public async register(req: Request, res: Response): Promise<void> {
+  public async register(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
     const { email, password } = req.body;
     const userRepository = getRepository(User);
     const newUser = new User();
@@ -25,6 +29,7 @@ class UserController {
             reason: `User with email ${email} already exists.`,
           },
         });
+        return;
       }
 
       newUser.password = await bcrypt.hash(password, 12);
@@ -32,9 +37,7 @@ class UserController {
 
       res.status(200).json({ status: "success", data: { newUser } });
     } catch (error) {
-      const { message, stack } = new Error(error);
-      console.error("Error in User Signup (Local): " + stack);
-      res.status(500).json({ status: "error", message, data: stack });
+      next(error);
     }
   }
 
