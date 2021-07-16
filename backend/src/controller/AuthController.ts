@@ -71,7 +71,9 @@ class UserController {
           reason: "Cannot logout user that is not logged in",
         },
       });
+      return;
     }
+
     req.logout();
     res.status(200).json({
       status: "success",
