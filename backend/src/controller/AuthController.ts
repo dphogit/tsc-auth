@@ -38,14 +38,25 @@ class UserController {
     }
   }
 
+  public isAuthenticated(req: Request, res: Response, next: NextFunction) {
+    if (!req.isAuthenticated()) {
+      res
+        .status(400)
+        .json({ status: "fail", data: { reason: "Not authenticated." } });
+      return;
+    }
+
+    next();
+  }
+
   public authenticateLocal(req: Request, res: Response, next: NextFunction) {
-    passport.authenticate("local", { session: false }, (err, user) => {
+    passport.authenticate("local", (err, user) => {
       if (err) return next(err);
       if (!user) {
         return res.status(401).json({
           status: "fail",
           data: {
-            reason: "Unauthorized",
+            reason: "Incorrect login",
           },
         });
       }
@@ -90,6 +101,7 @@ class UserController {
         return;
       }
 
+      req.user = user;
       next();
     })(req, res, next);
   }

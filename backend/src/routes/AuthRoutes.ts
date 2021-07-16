@@ -15,7 +15,11 @@ class AuthRoutes {
   public initializeRoutes() {
     this.router.post("/register", this.controller.register);
     this.router.post("/login", this.controller.authenticateLocal);
-    this.router.post("/logout", this.controller.logout);
+    this.router.post(
+      "/logout",
+      this.controller.isAuthenticated,
+      this.controller.logout
+    );
   }
 }
 

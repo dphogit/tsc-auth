@@ -1,5 +1,6 @@
 import { Router } from "express";
 
+import upload from "../config/multer";
 import UserController from "../controller/UserController";
 import AuthController from "../controller/AuthController";
 
@@ -18,8 +19,16 @@ class UserRoutes {
   public initializeRoutes() {
     this.router.get(
       "/:id",
+      this.authController.isAuthenticated,
       this.authController.authenticateJWT,
       this.userController.userDetails
+    );
+    this.router.put(
+      "/:id",
+      this.authController.isAuthenticated,
+      this.authController.authenticateJWT,
+      upload.single("photo"),
+      this.userController.editProfile
     );
   }
 }
