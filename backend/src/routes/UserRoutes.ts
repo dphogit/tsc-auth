@@ -1,19 +1,26 @@
 import { Router } from "express";
 
 import UserController from "../controller/UserController";
+import AuthController from "../controller/AuthController";
 
 class UserRoutes {
   router: Router;
-  controller: UserController;
+  userController: UserController;
+  authController: AuthController;
 
   constructor() {
     this.router = Router();
-    this.controller = new UserController();
+    this.userController = new UserController();
+    this.authController = new AuthController();
     this.initializeRoutes();
   }
 
   public initializeRoutes() {
-    this.router.get("/:id", this.controller.userDetails);
+    this.router.get(
+      "/:id",
+      this.authController.authenticateJWT,
+      this.userController.userDetails
+    );
   }
 }
 

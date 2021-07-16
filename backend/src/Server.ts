@@ -2,7 +2,11 @@ import express, { Application, Request, Response, NextFunction } from "express";
 import passport from "passport";
 import session from "express-session";
 
-import { localStrategySetup, sessionSetup } from "./config/passport";
+import {
+  localStrategySetup,
+  sessionSetup,
+  JwtStrategySetup,
+} from "./config/passport";
 import Routes from "./routes";
 
 const SESSION_SECRET = <string>process.env.SESSION_SECRET;
@@ -28,8 +32,9 @@ export default class Server {
     );
     app.use(passport.initialize());
     app.use(passport.session());
-    localStrategySetup();
     sessionSetup();
+    localStrategySetup();
+    JwtStrategySetup();
   }
 
   private errorHandler(
@@ -46,6 +51,7 @@ export default class Server {
         stack: err.stack,
       },
     });
+    return;
   }
 
   private notFoundHandler(_req: Request, res: Response) {

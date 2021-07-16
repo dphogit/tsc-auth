@@ -2,6 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import { getRepository } from "typeorm";
 import bcrypt from "bcrypt";
 import passport from "passport";
+import { sign } from "jsonwebtoken";
 
 import User from "../entities/User";
 
@@ -37,8 +38,8 @@ class UserController {
     }
   }
 
-  public authenticate(req: Request, res: Response, next: NextFunction) {
-    passport.authenticate("local", (err, user) => {
+  public authenticateLocal(req: Request, res: Response, next: NextFunction) {
+    passport.authenticate("local", { session: false }, (err, user) => {
       if (err) return next(err);
       if (!user) {
         return res.status(401).json({
@@ -53,12 +54,43 @@ class UserController {
         if (err) return next(err);
       });
 
+      const EXPIRE = 1000 * 60 * 60 * 24; // 1 day
+
+      const token = sign(
+        { userId: user.userId, email: user.email },
+        process.env.JWT_SECRET!,
+        { expiresIn: EXPIRE.toString() }
+      );
+
       res.status(200).json({
         status: "success",
         data: {
           userId: user.userId,
+          token: token,
+          expiresInMs: EXPIRE,
         },
       });
+    })(req, res, next);
+  }
+
+  public authenticateJWT(req: Request, res: Response, next: NextFunction) {
+    passport.authenticate("jwt", (err, user) => {
+      if (err) {
+        console.log(err);
+        throw err;
+      }
+
+      if (!user) {
+        res.status(401).json({
+          status: "fail",
+          data: {
+            reason: "Unauthorized",
+          },
+        });
+        return;
+      }
+
+      next();
     })(req, res, next);
   }
 
