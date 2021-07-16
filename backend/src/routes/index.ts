@@ -1,12 +1,12 @@
 import { Application } from "express";
 
-import UserRouter from "./UserRoutes";
+import AuthRouter from "./AuthRoutes";
 
 const API = "/api/v1";
 
 class Routes {
   constructor(app: Application) {
-    app.use(`${API}/user`, UserRouter);
+    app.use(`${API}/auth`, AuthRouter);
   }
 }
 

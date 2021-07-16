@@ -1,21 +1,22 @@
 import { Router } from "express";
 
-import UserController from "../controller/UserController";
+import AuthController from "../controller/AuthController";
 
-class HelloRoutes {
+class AuthRoutes {
   router: Router;
-  controller: UserController;
+  controller: AuthController;
 
   constructor() {
     this.router = Router();
-    this.controller = new UserController();
+    this.controller = new AuthController();
     this.initializeRoutes();
   }
 
   public initializeRoutes() {
     this.router.post("/register", this.controller.register);
     this.router.post("/authenticate", this.controller.authenticate);
+    this.router.post("/logout", this.controller.logout);
   }
 }
 
-export default new HelloRoutes().router;
+export default new AuthRoutes().router;

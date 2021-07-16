@@ -2,12 +2,8 @@ import { NextFunction, Request, Response } from "express";
 import { getRepository } from "typeorm";
 import bcrypt from "bcrypt";
 import passport from "passport";
-import jwt from "jsonwebtoken";
 
 import User from "../entities/User";
-
-const SECRET = <string>process.env.JWT_SECRET;
-const EXPIRE = 86400000;
 
 class UserController {
   public async register(
@@ -46,7 +42,7 @@ class UserController {
       if (err) return next(err);
       if (!user) {
         return res.status(401).json({
-          status: "failed",
+          status: "fail",
           data: {
             reason: "Unauthorized",
           },
@@ -57,21 +53,32 @@ class UserController {
         if (err) return next(err);
       });
 
-      const token = jwt.sign(
-        { userId: user.userId, email: user.email },
-        SECRET,
-        { expiresIn: EXPIRE }
-      );
-
       res.status(200).json({
         status: "success",
         data: {
-          token: token,
           userId: user.userId,
-          expiresInMilliSeconds: EXPIRE,
         },
       });
     })(req, res, next);
+  }
+
+  public logout(req: Request, res: Response, _next: NextFunction) {
+    const user = req.user as User;
+    if (!user) {
+      res.status(400).json({
+        status: "fail",
+        data: {
+          reason: "Cannot logout user that is not logged in",
+        },
+      });
+    }
+    req.logout();
+    res.status(200).json({
+      status: "success",
+      data: {
+        userId: user.userId,
+      },
+    });
   }
 }
 
