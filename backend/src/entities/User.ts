@@ -4,6 +4,7 @@ import {
   Column,
   JoinColumn,
   OneToOne,
+  getRepository,
 } from "typeorm";
 
 import BaseEntity from "./BaseEntity";
@@ -23,6 +24,15 @@ class User extends BaseEntity {
   @OneToOne(() => Profile, { nullable: true })
   @JoinColumn()
   profile: Profile;
+
+  static getUserDetailsById(id: number) {
+    return getRepository(User)
+      .createQueryBuilder("user")
+      .leftJoinAndSelect("user.profile", "profile")
+      .leftJoinAndSelect("profile.photo", "photo")
+      .where("user.userId = :id", { id })
+      .getOne();
+  }
 }
 
 export default User;

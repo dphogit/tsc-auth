@@ -10,16 +10,10 @@ import { clearPhoto } from "../common/util";
 
 class UserController {
   public async userDetails(req: Request, res: Response, next: NextFunction) {
-    const userRepository = getRepository(User);
     const userId = req.params.id;
 
     try {
-      const user = await userRepository
-        .createQueryBuilder("user")
-        .leftJoinAndSelect("user.profile", "profile")
-        .leftJoinAndSelect("profile.photo", "photo")
-        .where("user.userId = :id", { id: userId })
-        .getOne();
+      const user = await User.getUserDetailsById(parseInt(userId));
 
       if (!user) {
         res.status(404).json({
@@ -60,12 +54,9 @@ class UserController {
     const photoFile = req.file;
 
     try {
-      const userRequesting = (await userRepository
-        .createQueryBuilder("user")
-        .leftJoinAndSelect("user.profile", "profile")
-        .leftJoinAndSelect("profile.photo", "photo")
-        .where("user.userId = :id", { id: (req.user as User).userId })
-        .getOne()) as User;
+      const userRequesting = (await User.getUserDetailsById(
+        (req.user as User).userId
+      )) as User;
 
       // Check that the user sending request has the same id with the one that is wanting to be changed.
       if (userRequesting.userId !== parseInt(req.params.id)) {
