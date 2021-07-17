@@ -1,6 +1,7 @@
 import { Router } from "express";
 
 import AuthController from "../controller/AuthController";
+import { validateRegister } from "../middleware/validation";
 
 class AuthRoutes {
   router: Router;
@@ -13,7 +14,7 @@ class AuthRoutes {
   }
 
   public initializeRoutes() {
-    this.router.post("/register", this.controller.register);
+    this.router.post("/register", validateRegister, this.controller.register);
     this.router.post("/login", this.controller.authenticateLocal);
     this.router.post(
       "/logout",

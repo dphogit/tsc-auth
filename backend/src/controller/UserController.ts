@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import { getRepository } from "typeorm";
 import bcrypt from "bcrypt";
+import { validationResult } from "express-validator";
 
 import User from "../entities/User";
 import Profile from "../entities/Profile";
@@ -43,6 +44,17 @@ class UserController {
     const userRepository = getRepository(User);
     const profileRepository = getRepository(Profile);
     const photoRepository = getRepository(Photo);
+
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      res.status(400).json({
+        status: "fail",
+        data: {
+          reason: errors.array(),
+        },
+      });
+      return;
+    }
 
     const { password, name, bio, phone } = req.body;
     const photoFile = req.file;

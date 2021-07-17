@@ -3,6 +3,7 @@ import { Router } from "express";
 import upload from "../config/multer";
 import UserController from "../controller/UserController";
 import AuthController from "../controller/AuthController";
+import { validateEditprofile } from "../middleware/Validation";
 
 class UserRoutes {
   router: Router;
@@ -28,6 +29,7 @@ class UserRoutes {
       this.authController.isAuthenticated,
       this.authController.authenticateJWT,
       upload.single("photo"),
+      validateEditprofile,
       this.userController.editProfile
     );
   }

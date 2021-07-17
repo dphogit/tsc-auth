@@ -3,6 +3,7 @@ import { getRepository } from "typeorm";
 import bcrypt from "bcrypt";
 import passport from "passport";
 import { sign } from "jsonwebtoken";
+import { validationResult } from "express-validator";
 
 import User from "../entities/User";
 
@@ -12,6 +13,17 @@ class UserController {
     res: Response,
     next: NextFunction
   ): Promise<void> {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      res.status(400).json({
+        status: "fail",
+        data: {
+          reason: errors.array(),
+        },
+      });
+      return;
+    }
+
     const { email, password } = req.body;
     const userRepository = getRepository(User);
     const newUser = new User();
