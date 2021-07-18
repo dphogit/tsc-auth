@@ -15,10 +15,12 @@ class UserController {
   ): Promise<void> {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
+      const failures = errors.array();
       res.status(400).json({
         status: "fail",
         data: {
-          reason: errors.array(),
+          allErrors: failures,
+          reason: failures[0].msg,
         },
       });
       return;
@@ -77,7 +79,7 @@ class UserController {
         if (err) return next(err);
       });
 
-      const EXPIRE = 1000 * 60 * 60 * 24; // 1 day
+      const EXPIRE = 1000 * 60 * 30; // 30 mins
 
       const token = sign(
         { userId: user.userId, email: user.email },

@@ -40,8 +40,13 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
-const Navigation = () => {
+interface Props {
+  logout: () => void;
+}
+
+const Navigation = (props: Props) => {
   const classes = useStyles();
+
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const [mobileMoreAnchorEl, setMobileMoreAnchorEl] =
     React.useState<null | HTMLElement>(null);
@@ -80,7 +85,7 @@ const Navigation = () => {
       <MenuItem onClick={handleMenuClose}>
         <Link to="/">My Profile</Link>
       </MenuItem>
-      <MenuItem onClick={handleMenuClose}>Logout</MenuItem>
+      <MenuItem onClick={props.logout}>Logout</MenuItem>
     </Menu>
   );
 

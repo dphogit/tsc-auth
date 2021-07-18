@@ -41,10 +41,12 @@ class UserController {
 
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
+      const failures = errors.array();
       res.status(400).json({
         status: "fail",
         data: {
-          reason: errors.array(),
+          allErrors: failures,
+          reason: failures[0].msg,
         },
       });
       return;

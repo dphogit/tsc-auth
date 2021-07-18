@@ -36,6 +36,7 @@ const useStyles = makeStyles((theme: Theme) => ({
 interface Props {
   setUserId: Dispatch<SetStateAction<number | undefined>>;
   setToken: Dispatch<SetStateAction<string | undefined>>;
+  setAutoLogout: (ms: number) => void;
 }
 
 const AuthForm = (props: Props) => {
@@ -92,17 +93,25 @@ const AuthForm = (props: Props) => {
   const loginHandler = async (details: Details) => {
     try {
       const json = await login(details);
+      const { userId, token, expiresInMs, reason, message } = json.data;
 
       if (json.status === "fail") {
-        setFailMessage(json.data.reason);
+        setFailMessage(reason);
         return;
       } else if (json.status === "error") {
-        setFailMessage(json.data.message);
-        throw new Error(json.data.message);
+        setFailMessage(message);
+        throw new Error(message);
       }
 
-      props.setUserId(json.data.userId);
-      props.setToken(json.data.token);
+      props.setToken(token);
+      localStorage.setItem("token", token);
+
+      props.setUserId(userId);
+      localStorage.setItem("userId", userId.toString());
+
+      const expiryDate = new Date(new Date().getTime() + expiresInMs);
+      localStorage.setItem("expiryDate", expiryDate.toISOString());
+      props.setAutoLogout(expiresInMs);
     } catch (error) {
       console.log(error);
     }

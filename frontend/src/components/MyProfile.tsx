@@ -62,7 +62,6 @@ const MyProfile = (props: Props) => {
         console.log(error);
       }
     };
-    console.log(props);
     init();
   }, [props]);
 

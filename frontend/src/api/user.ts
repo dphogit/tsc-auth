@@ -14,7 +14,6 @@ interface FetchUserResponse {
 }
 
 export async function fetchUserDetails(id: number, token: string) {
-  console.log(id, token);
   const response = await fetch(`${BASE_URL}/${id}`, {
     headers: {
       Authorization: `Bearer ${token}`,

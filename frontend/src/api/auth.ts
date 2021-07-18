@@ -21,7 +21,7 @@ interface LoginResponse {
 interface RegisterResponse {
   status: "success" | "fail" | "error";
   data: {
-    reason: "string";
+    reason: string;
     name: string;
     message: string;
     stack: string;
