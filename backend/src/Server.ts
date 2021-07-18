@@ -1,6 +1,7 @@
 import express, { Application, Request, Response, NextFunction } from "express";
 import passport from "passport";
 import session from "express-session";
+import cors from "cors";
 
 import {
   localStrategySetup,
@@ -20,7 +21,9 @@ export default class Server {
   }
 
   private config(app: Application): void {
-    // Add middleware here
+    app.use(
+      cors({ origin: "http://localhost:3000", optionsSuccessStatus: 200 })
+    );
     app.use(express.urlencoded({ extended: true }));
     app.use(express.json());
     app.use(

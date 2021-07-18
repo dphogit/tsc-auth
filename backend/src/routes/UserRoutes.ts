@@ -20,13 +20,11 @@ class UserRoutes {
   public initializeRoutes() {
     this.router.get(
       "/:id",
-      this.authController.isAuthenticated,
       this.authController.authenticateJWT,
       this.userController.userDetails
     );
     this.router.put(
       "/:id",
-      this.authController.isAuthenticated,
       this.authController.authenticateJWT,
       upload.single("photo"),
       validateEditprofile,
