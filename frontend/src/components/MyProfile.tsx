@@ -1,11 +1,19 @@
-import { makeStyles, Theme } from "@material-ui/core";
-import Button from "@material-ui/core/Button";
-import Card from "@material-ui/core/Card";
-import CardContent from "@material-ui/core/CardContent";
-import CardHeader from "@material-ui/core/CardHeader";
-import Typography from "@material-ui/core/Typography";
 import { useEffect, useState } from "react";
+import {
+  makeStyles,
+  Theme,
+  Button,
+  Card,
+  CardContent,
+  CardHeader,
+  Typography,
+} from "@material-ui/core";
+import EditIcon from "@material-ui/icons/Edit";
+import { useHistory } from "react-router-dom";
+
 import { fetchUserDetails } from "../api/user";
+import ProfileAvatar from "./ProfileAvatar";
+import ProfileRow from "./ProfileRow";
 
 interface PublicDetails {
   email: string;
@@ -21,6 +29,16 @@ interface Props {
 }
 
 const useStyles = makeStyles((theme: Theme) => ({
+  card: {
+    paddingTop: theme.spacing(3),
+  },
+  cardContent: {
+    paddingLeft: 0,
+    paddingRight: 0,
+    "&:last-child": {
+      paddingBottom: 0,
+    },
+  },
   failText: {
     backgroundColor: theme.palette.error.light,
     borderColor: theme.palette.error.dark,
@@ -30,6 +48,8 @@ const useStyles = makeStyles((theme: Theme) => ({
 
 const MyProfile = (props: Props) => {
   const classes = useStyles();
+
+  const history = useHistory();
 
   const [userDetails, setUserDetails] = useState<PublicDetails | null>(null);
   const [failMessage, setFailMessage] = useState("");
@@ -65,24 +85,62 @@ const MyProfile = (props: Props) => {
     init();
   }, [props]);
 
+  const editHandler = () => {
+    history.push("/edit");
+  };
+
   return (
     <div>
-      <Typography variant="h3">My Profile</Typography>
-      <Card>
+      <Typography variant="h3" align="center" gutterBottom>
+        My Profile
+      </Typography>
+      <Card className={classes.card}>
         <CardHeader
-          action={<Button variant="outlined">Edit Profile</Button>}
+          action={
+            <Button
+              startIcon={<EditIcon />}
+              variant="outlined"
+              onClick={editHandler}
+            >
+              Edit Profile
+            </Button>
+          }
           title="Profile"
           subheader="This information is visible to other people"
         />
-        <CardContent>
+        <CardContent className={classes.cardContent}>
           <Typography align="center" className={classes.failText}>
-            {failMessage && failMessage}
+            {failMessage}
           </Typography>
-          <p>Name: {userDetails?.name}</p>
-          <p>Bio: {userDetails?.bio}</p>
-          <p>Phone: {userDetails?.phone}</p>
-          <p>Email: {userDetails?.email}</p>
-          <p>Filename: {userDetails?.photoFilename}</p>
+          {userDetails && (
+            <>
+              <ProfileRow
+                field="Photo"
+                value={
+                  <ProfileAvatar
+                    email={userDetails.email}
+                    src={
+                      userDetails.photoFilename
+                        ? `http://localhost:8080/photo/${userDetails.photoFilename}`
+                        : undefined
+                    }
+                    length="5rem"
+                    name={userDetails.name}
+                  />
+                }
+                borderTop
+                borderBottom
+              />
+              <ProfileRow field="Name" value={userDetails.name} borderBottom />
+              <ProfileRow field="Bio" value={userDetails.bio} borderBottom />
+              <ProfileRow
+                field="Phone"
+                value={userDetails.phone}
+                borderBottom
+              />
+              <ProfileRow field="Email" value={userDetails.email} />
+            </>
+          )}
         </CardContent>
       </Card>
     </div>

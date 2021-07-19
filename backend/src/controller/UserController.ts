@@ -1,6 +1,5 @@
 import { Request, Response, NextFunction } from "express";
 import { getRepository } from "typeorm";
-import bcrypt from "bcrypt";
 import { validationResult } from "express-validator";
 
 import User from "../entities/User";
@@ -52,7 +51,7 @@ class UserController {
       return;
     }
 
-    const { password, name, bio, phone } = req.body;
+    const { name, bio, phone } = req.body;
     const photoFile = req.file;
 
     try {
@@ -71,8 +70,6 @@ class UserController {
         });
         return;
       }
-
-      userRequesting.password = await bcrypt.hash(password, 12);
 
       let newProfile;
       if (!userRequesting.profile) {

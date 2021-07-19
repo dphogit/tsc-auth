@@ -5,6 +5,7 @@ import { Switch, Route } from "react-router-dom";
 import AuthForm from "./components/AuthForm";
 import Navigation from "./components/Navigation";
 import MyProfile from "./components/MyProfile";
+import EditProfile from "./components/EditProfile";
 
 const App = () => {
   const [userId, setUserId] = useState<number>();
@@ -44,26 +45,27 @@ const App = () => {
   }, [setAutoLogout]);
 
   return (
-    <Container maxWidth="md">
-      <Switch>
+    <>
+      {userId && token && <Navigation logout={logoutHandler} />}
+      <Container maxWidth="md">
         {userId && token ? (
-          <>
-            <Navigation logout={logoutHandler} />
+          <Switch>
+            <Route path="/edit" exact>
+              <EditProfile userId={userId} token={token} />
+            </Route>
             <Route path="/">
               <MyProfile userId={userId} token={token} />
             </Route>
-          </>
+          </Switch>
         ) : (
-          <Route path="/">
-            <AuthForm
-              setUserId={setUserId}
-              setToken={setToken}
-              setAutoLogout={setAutoLogout}
-            />
-          </Route>
+          <AuthForm
+            setUserId={setUserId}
+            setToken={setToken}
+            setAutoLogout={setAutoLogout}
+          />
         )}
-      </Switch>
-    </Container>
+      </Container>
+    </>
   );
 };
 

@@ -11,9 +11,6 @@ export const validateRegister = [
 ];
 
 export const validateEditprofile = [
-  body("password")
-    .isLength({ min: 5 })
-    .withMessage("Password must be at least 5 characters"),
   body("name")
     .matches(/^[a-zA-Z-'. ]+$/)
     .withMessage("Name contains invalid characters"),

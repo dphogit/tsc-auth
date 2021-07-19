@@ -42,7 +42,7 @@ interface Props {
 const AuthForm = (props: Props) => {
   const classes = useStyles();
 
-  const [isRegister, setIsRegister] = useState(true);
+  const [isRegister, setIsRegister] = useState(false);
   const [failMessage, setFailMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
 

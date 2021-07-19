@@ -9,6 +9,7 @@ import {
   JwtStrategySetup,
 } from "./config/passport";
 import Routes from "./routes";
+import path from "path";
 
 const SESSION_SECRET = <string>process.env.SESSION_SECRET;
 
@@ -23,6 +24,10 @@ export default class Server {
   private config(app: Application): void {
     app.use(
       cors({ origin: "http://localhost:3000", optionsSuccessStatus: 200 })
+    );
+    app.use(
+      "/photo",
+      express.static(path.join(__dirname, "../", "public/photos"))
     );
     app.use(express.urlencoded({ extended: true }));
     app.use(express.json());
