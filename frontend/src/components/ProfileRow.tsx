@@ -1,5 +1,6 @@
 import { ReactNode } from "react";
-import { makeStyles, Grid, Theme } from "@material-ui/core";
+import { makeStyles, Grid, Theme, useTheme } from "@material-ui/core";
+import useMediaQuery from "@material-ui/core/useMediaQuery";
 
 interface Props {
   field: string;
@@ -20,26 +21,28 @@ const useStyles = makeStyles((theme: Theme) => ({
     borderBottom: props.borderBottom
       ? `1px solid ${theme.palette.grey[400]}`
       : "none",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
   }),
+  field: {
+    fontWeight: "bold",
+  },
 }));
 
 const ProfileRow = (props: Props) => {
   const classes = useStyles(props);
+  const theme = useTheme();
+  const matches = useMediaQuery(theme.breakpoints.up("sm"));
 
   const { field, value } = props;
 
   return (
-    <Grid
-      container
-      direction="row"
-      justifyContent="flex-start"
-      alignItems="center"
-      className={classes.root}
-    >
-      <Grid item xs={3}>
+    <Grid container direction="row" className={classes.root}>
+      <Grid item xs={matches ? 3 : 5} className={classes.field}>
         {field}
       </Grid>
-      <Grid item xs={9}>
+      <Grid item xs={matches ? 9 : 7}>
         {value}
       </Grid>
     </Grid>

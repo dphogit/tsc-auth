@@ -7,6 +7,8 @@ import {
   CardContent,
   CardHeader,
   Typography,
+  useMediaQuery,
+  useTheme,
 } from "@material-ui/core";
 import EditIcon from "@material-ui/icons/Edit";
 import { useHistory } from "react-router-dom";
@@ -30,13 +32,21 @@ interface Props {
 
 const useStyles = makeStyles((theme: Theme) => ({
   card: {
-    paddingTop: theme.spacing(3),
+    paddingTop: theme.spacing(1),
+    [theme.breakpoints.up("sm")]: {
+      paddingTop: theme.spacing(3),
+    },
   },
   cardContent: {
     paddingLeft: 0,
     paddingRight: 0,
     "&:last-child": {
       paddingBottom: 0,
+    },
+  },
+  heading: {
+    [theme.breakpoints.down("sm")]: {
+      fontSize: theme.spacing(5),
     },
   },
   failText: {
@@ -50,6 +60,9 @@ const MyProfile = (props: Props) => {
   const classes = useStyles();
 
   const history = useHistory();
+
+  const theme = useTheme();
+  const matches = useMediaQuery(theme.breakpoints.down("sm"));
 
   const [userDetails, setUserDetails] = useState<PublicDetails | null>(null);
   const [failMessage, setFailMessage] = useState("");
@@ -91,7 +104,12 @@ const MyProfile = (props: Props) => {
 
   return (
     <div>
-      <Typography variant="h3" align="center" gutterBottom>
+      <Typography
+        variant="h3"
+        align="center"
+        gutterBottom
+        className={classes.heading}
+      >
         My Profile
       </Typography>
       <Card className={classes.card}>
@@ -102,11 +120,17 @@ const MyProfile = (props: Props) => {
               variant="outlined"
               onClick={editHandler}
             >
-              Edit Profile
+              Edit
             </Button>
           }
           title="Profile"
           subheader="This information is visible to other people"
+          subheaderTypographyProps={{
+            variant: matches ? "caption" : "subtitle1",
+            style: {
+              marginTop: "8px",
+            },
+          }}
         />
         <CardContent className={classes.cardContent}>
           <Typography align="center" className={classes.failText}>

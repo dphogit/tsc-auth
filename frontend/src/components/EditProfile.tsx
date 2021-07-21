@@ -8,6 +8,8 @@ import {
   Button,
   makeStyles,
   Theme,
+  useMediaQuery,
+  useTheme,
 } from "@material-ui/core";
 import ArrowBackIosIcon from "@material-ui/icons/ArrowBackIos";
 import SaveIcon from "@material-ui/icons/Save";
@@ -31,14 +33,21 @@ interface Props {
 }
 
 const useStyles = makeStyles((theme: Theme) => ({
+  backBtn: {
+    marginBottom: theme.spacing(1),
+  },
   card: {
-    paddingTop: theme.spacing(3),
-    paddingBottom: theme.spacing(3),
+    [theme.breakpoints.up("sm")]: {
+      paddingTop: theme.spacing(3),
+      paddingBottom: theme.spacing(3),
+    },
   },
   cardHeader: {
     borderBottom: `1px solid ${theme.palette.grey[400]}`,
-    paddingLeft: theme.spacing(6),
     marginBottom: theme.spacing(2),
+    [theme.breakpoints.up("sm")]: {
+      paddingLeft: theme.spacing(6),
+    },
   },
   failText: {
     backgroundColor: theme.palette.error.light,
@@ -46,7 +55,9 @@ const useStyles = makeStyles((theme: Theme) => ({
     borderWidth: "1px",
   },
   padLeft: {
-    paddingLeft: theme.spacing(3),
+    [theme.breakpoints.up("sm")]: {
+      paddingLeft: theme.spacing(3),
+    },
   },
 }));
 
@@ -64,6 +75,8 @@ const EditProfile = ({ token, userId }: Props) => {
   const history = useHistory();
 
   const classes = useStyles();
+  const theme = useTheme();
+  const matches = useMediaQuery(theme.breakpoints.down("sm"));
 
   useEffect(() => {
     const init = async () => {
@@ -152,7 +165,6 @@ const EditProfile = ({ token, userId }: Props) => {
   const submitHandler = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    // name, bio, phone, photoFile
     const formData = new FormData();
     formData.append("name", name);
     formData.append("bio", bio);
@@ -160,6 +172,7 @@ const EditProfile = ({ token, userId }: Props) => {
     if (photoFile) {
       formData.append("photo", photoFile);
     }
+
     try {
       const response = await fetch(
         `http://localhost:8080/api/v1/user/${userId}`,
@@ -195,6 +208,7 @@ const EditProfile = ({ token, userId }: Props) => {
         color="primary"
         onClick={backHandler}
         startIcon={<ArrowBackIosIcon />}
+        className={classes.backBtn}
       >
         Back
       </Button>
@@ -203,6 +217,12 @@ const EditProfile = ({ token, userId }: Props) => {
           title="Change Info"
           subheader="Changes will be reflected after save"
           className={classes.cardHeader}
+          subheaderTypographyProps={{
+            variant: matches ? "caption" : "subtitle1",
+            style: {
+              marginTop: "8px",
+            },
+          }}
         />
         <Typography align="center" className={classes.failText}>
           {failMessage}

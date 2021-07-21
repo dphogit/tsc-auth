@@ -9,7 +9,7 @@ import Menu from "@material-ui/core/Menu";
 import AccountCircle from "@material-ui/icons/AccountCircle";
 import MoreIcon from "@material-ui/icons/MoreVert";
 import ExitToAppIcon from "@material-ui/icons/ExitToApp";
-import { Link } from "react-router-dom";
+import { Link, useHistory } from "react-router-dom";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -17,7 +17,7 @@ const useStyles = makeStyles((theme: Theme) =>
       flexGrow: 1,
       marginBottom: theme.spacing(8),
       [theme.breakpoints.down("sm")]: {
-        marginBottom: theme.spacing(4),
+        marginBottom: theme.spacing(2),
       },
     },
     menuButton: {
@@ -40,6 +40,13 @@ const useStyles = makeStyles((theme: Theme) =>
         display: "none",
       },
     },
+    myProfileMenuLink: {
+      textDecoration: "none",
+      color: theme.palette.common.black,
+    },
+    mobileMenuItem: {
+      paddingLeft: 0,
+    },
   })
 );
 
@@ -49,6 +56,8 @@ interface Props {
 
 const Navigation = (props: Props) => {
   const classes = useStyles();
+
+  const history = useHistory();
 
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const [mobileMoreAnchorEl, setMobileMoreAnchorEl] =
@@ -74,6 +83,12 @@ const Navigation = (props: Props) => {
     setMobileMoreAnchorEl(event.currentTarget);
   };
 
+  const handleProfileMenuClick = () => {
+    history.push("/profile");
+    handleMenuClose();
+  };
+
+  // Desktop Specific Display For Menu
   const menuId = "primary-search-account-menu";
   const renderMenu = (
     <Menu
@@ -86,12 +101,15 @@ const Navigation = (props: Props) => {
       onClose={handleMenuClose}
     >
       <MenuItem onClick={handleMenuClose}>
-        <Link to="/">My Profile</Link>
+        <Link to="/" className={classes.myProfileMenuLink}>
+          My Profile
+        </Link>
       </MenuItem>
       <MenuItem onClick={props.logout}>Logout</MenuItem>
     </Menu>
   );
 
+  // Mobile Responsive Specific Display For Menu
   const mobileMenuId = "primary-search-account-menu-mobile";
   const renderMobileMenu = (
     <Menu
@@ -103,19 +121,20 @@ const Navigation = (props: Props) => {
       open={isMobileMenuOpen}
       onClose={handleMobileMenuClose}
     >
-      <MenuItem onClick={handleProfileMenuOpen}>
+      <MenuItem className={classes.mobileMenuItem}>
         <IconButton
           aria-label="account of current user"
           aria-controls="primary-search-account-menu"
           aria-haspopup="true"
           color="inherit"
+          onClick={handleProfileMenuClick}
         >
           <AccountCircle />
         </IconButton>
         <p>Profile</p>
       </MenuItem>
 
-      <MenuItem>
+      <MenuItem className={classes.mobileMenuItem}>
         <IconButton
           aria-label="logout"
           aria-controls="primary-logout-menu"

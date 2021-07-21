@@ -1,6 +1,7 @@
 import Container from "@material-ui/core/Container";
 import { useCallback, useEffect, useState } from "react";
 import { Switch, Route } from "react-router-dom";
+import { Helmet } from "react-helmet";
 
 import AuthForm from "./components/AuthForm";
 import Navigation from "./components/Navigation";
@@ -45,7 +46,22 @@ const App = () => {
   }, [setAutoLogout]);
 
   return (
-    <>
+    <div className="application">
+      <Helmet>
+        <title>Authentication App</title>
+        <meta
+          name="description"
+          content="Authentication application created with React"
+        />
+        <link
+          rel="stylesheet"
+          href="https://fonts.googleapis.com/icon?family=Material+Icons"
+        />
+        <link
+          rel="stylesheet"
+          href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap"
+        />
+      </Helmet>
       {userId && token && <Navigation logout={logoutHandler} />}
       <Container maxWidth="md">
         {userId && token ? (
@@ -65,7 +81,7 @@ const App = () => {
           />
         )}
       </Container>
-    </>
+    </div>
   );
 };
 

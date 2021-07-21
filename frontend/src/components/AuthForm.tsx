@@ -3,6 +3,7 @@ import Button from "@material-ui/core/Button";
 import TextField from "@material-ui/core/TextField";
 import { makeStyles, Theme } from "@material-ui/core/styles";
 import Typography from "@material-ui/core/Typography";
+import { useHistory } from "react-router-dom";
 
 import { login, register, Details } from "../api/auth";
 
@@ -41,6 +42,8 @@ interface Props {
 
 const AuthForm = (props: Props) => {
   const classes = useStyles();
+
+  const history = useHistory();
 
   const [isRegister, setIsRegister] = useState(false);
   const [failMessage, setFailMessage] = useState("");
@@ -112,6 +115,7 @@ const AuthForm = (props: Props) => {
       const expiryDate = new Date(new Date().getTime() + expiresInMs);
       localStorage.setItem("expiryDate", expiryDate.toISOString());
       props.setAutoLogout(expiresInMs);
+      history.push("/");
     } catch (error) {
       console.log(error);
     }
