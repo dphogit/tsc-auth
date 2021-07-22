@@ -19,6 +19,11 @@ class UserRoutes {
 
   public initializeRoutes() {
     this.router.get(
+      "/",
+      this.authController.authenticateJWT,
+      this.userController.allUsers
+    );
+    this.router.get(
       "/:id",
       this.authController.authenticateJWT,
       this.userController.userDetails

@@ -9,6 +9,7 @@ import Menu from "@material-ui/core/Menu";
 import AccountCircle from "@material-ui/icons/AccountCircle";
 import MoreIcon from "@material-ui/icons/MoreVert";
 import ExitToAppIcon from "@material-ui/icons/ExitToApp";
+import PeopleIcon from "@material-ui/icons/People";
 import { Link, useHistory } from "react-router-dom";
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -40,7 +41,7 @@ const useStyles = makeStyles((theme: Theme) =>
         display: "none",
       },
     },
-    myProfileMenuLink: {
+    menuLink: {
       textDecoration: "none",
       color: theme.palette.common.black,
     },
@@ -51,10 +52,11 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 interface Props {
+  userId: number;
   logout: () => void;
 }
 
-const Navigation = (props: Props) => {
+const Navigation = ({ userId, logout }: Props) => {
   const classes = useStyles();
 
   const history = useHistory();
@@ -83,8 +85,13 @@ const Navigation = (props: Props) => {
     setMobileMoreAnchorEl(event.currentTarget);
   };
 
+  const handleUsersMenuClick = () => {
+    history.push("/users");
+    handleMenuClose();
+  };
+
   const handleProfileMenuClick = () => {
-    history.push("/profile");
+    history.push(`/users/${userId}`);
     handleMenuClose();
   };
 
@@ -101,11 +108,16 @@ const Navigation = (props: Props) => {
       onClose={handleMenuClose}
     >
       <MenuItem onClick={handleMenuClose}>
-        <Link to="/" className={classes.myProfileMenuLink}>
+        <Link to={`/users/${userId}`} className={classes.menuLink}>
           My Profile
         </Link>
       </MenuItem>
-      <MenuItem onClick={props.logout}>Logout</MenuItem>
+      <MenuItem onClick={handleMenuClose}>
+        <Link to="/users" className={classes.menuLink}>
+          Users
+        </Link>
+      </MenuItem>
+      <MenuItem onClick={logout}>Logout</MenuItem>
     </Menu>
   );
 
@@ -121,26 +133,42 @@ const Navigation = (props: Props) => {
       open={isMobileMenuOpen}
       onClose={handleMobileMenuClose}
     >
-      <MenuItem className={classes.mobileMenuItem}>
+      <MenuItem
+        className={classes.mobileMenuItem}
+        onClick={handleUsersMenuClick}
+      >
         <IconButton
           aria-label="account of current user"
           aria-controls="primary-search-account-menu"
           aria-haspopup="true"
           color="inherit"
-          onClick={handleProfileMenuClick}
+        >
+          <PeopleIcon />
+        </IconButton>
+        <p>Users</p>
+      </MenuItem>
+
+      <MenuItem
+        className={classes.mobileMenuItem}
+        onClick={handleProfileMenuClick}
+      >
+        <IconButton
+          aria-label="account of current user"
+          aria-controls="primary-search-account-menu"
+          aria-haspopup="true"
+          color="inherit"
         >
           <AccountCircle />
         </IconButton>
         <p>Profile</p>
       </MenuItem>
 
-      <MenuItem className={classes.mobileMenuItem}>
+      <MenuItem className={classes.mobileMenuItem} onClick={logout}>
         <IconButton
           aria-label="logout"
           aria-controls="primary-logout-menu"
           aria-haspopup="true"
           color="inherit"
-          onClick={props.logout}
         >
           <ExitToAppIcon />
         </IconButton>

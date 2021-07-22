@@ -22,3 +22,12 @@ export interface Photo extends BaseModel {
   photoId: number;
   filename: string;
 }
+
+export interface PublicDetails {
+  id: number;
+  email: string;
+  name: string | null;
+  bio: string | null;
+  phone: string | null;
+  photoFilename: string | null;
+}

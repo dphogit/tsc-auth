@@ -33,6 +33,19 @@ class UserController {
     }
   }
 
+  public async allUsers(_req: Request, res: Response, next: NextFunction) {
+    try {
+      const users = await User.getAllUsers();
+
+      res.status(200).json({
+        status: "success",
+        data: { users },
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
   public async editProfile(req: Request, res: Response, next: NextFunction) {
     const userRepository = getRepository(User);
     const profileRepository = getRepository(Profile);

@@ -5,7 +5,8 @@ import { makeStyles, Theme } from "@material-ui/core/styles";
 import Typography from "@material-ui/core/Typography";
 import { useHistory } from "react-router-dom";
 
-import { login, register, Details } from "../api/auth";
+import useHttp from "../hooks/useHttp";
+import { User } from "../common/interfaces";
 
 const useStyles = makeStyles((theme: Theme) => ({
   submitBtn: {
@@ -34,24 +35,29 @@ const useStyles = makeStyles((theme: Theme) => ({
   },
 }));
 
+interface Details {
+  email: string;
+  password: string;
+}
+
 interface Props {
   setUserId: Dispatch<SetStateAction<number | undefined>>;
   setToken: Dispatch<SetStateAction<string | undefined>>;
   setAutoLogout: (ms: number) => void;
 }
 
-const AuthForm = (props: Props) => {
+const AuthForm = ({ setUserId, setToken, setAutoLogout }: Props) => {
   const classes = useStyles();
 
   const history = useHistory();
 
   const [isRegister, setIsRegister] = useState(false);
-  const [failMessage, setFailMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
+
+  const { sendRequest, errorMessage } = useHttp();
 
   const toggleModeHandler = () => {
     setIsRegister((prevMode) => !prevMode);
-    setFailMessage("");
   };
 
   const submitHandler = async (e: SyntheticEvent) => {
@@ -75,50 +81,53 @@ const AuthForm = (props: Props) => {
   };
 
   const registerHandler = async (details: Details) => {
-    try {
-      const json = await register(details);
-
-      if (json.status === "fail") {
-        setFailMessage(json.data.reason);
-        return;
-      } else if (json.status === "error") {
-        setFailMessage(json.data.message);
-        throw new Error(json.data.message);
-      }
-
-      toggleModeHandler();
+    const processRegisterUser = (_data: { newUser: User }) => {
       setSuccessMessage("Registration Successful! Login with your details.");
-    } catch (error) {
-      console.log(error);
-    }
+      toggleModeHandler();
+    };
+
+    await sendRequest({
+      url: "http://localhost:8080/api/v1/auth/register",
+      options: {
+        method: "POST",
+        body: JSON.stringify(details),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      },
+      processData: processRegisterUser,
+    });
   };
 
   const loginHandler = async (details: Details) => {
-    try {
-      const json = await login(details);
-      const { userId, token, expiresInMs, reason, message } = json.data;
+    const processLoginUser = (data: {
+      userId: number;
+      token: string;
+      expiresInMs: number;
+    }) => {
+      const { userId, token, expiresInMs } = data;
 
-      if (json.status === "fail") {
-        setFailMessage(reason);
-        return;
-      } else if (json.status === "error") {
-        setFailMessage(message);
-        throw new Error(message);
-      }
-
-      props.setToken(token);
+      setToken(token);
+      setUserId(userId);
       localStorage.setItem("token", token);
-
-      props.setUserId(userId);
       localStorage.setItem("userId", userId.toString());
-
       const expiryDate = new Date(new Date().getTime() + expiresInMs);
       localStorage.setItem("expiryDate", expiryDate.toISOString());
-      props.setAutoLogout(expiresInMs);
-      history.push("/");
-    } catch (error) {
-      console.log(error);
-    }
+      setAutoLogout(expiresInMs);
+      history.push(`/users/${userId}`);
+    };
+
+    await sendRequest({
+      url: "http://localhost:8080/api/v1/auth/login",
+      options: {
+        method: "POST",
+        body: JSON.stringify(details),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      },
+      processData: processLoginUser,
+    });
   };
 
   const text = isRegister ? "Register" : "Login";
@@ -133,9 +142,9 @@ const AuthForm = (props: Props) => {
       >
         {text}
       </Typography>
-      {failMessage && (
+      {errorMessage && (
         <Typography align="center" className={classes.failText}>
-          {failMessage}
+          {errorMessage}
         </Typography>
       )}
       {successMessage && (
@@ -153,7 +162,7 @@ const AuthForm = (props: Props) => {
         name="email"
         autoFocus
         autoComplete="email"
-        error={failMessage ? true : false}
+        error={errorMessage ? true : false}
       />
       <TextField
         variant="outlined"
@@ -165,7 +174,7 @@ const AuthForm = (props: Props) => {
         type="password"
         id="password"
         autoComplete="current-password"
-        error={failMessage ? true : false}
+        error={errorMessage ? true : false}
       />
       <Button
         variant="contained"

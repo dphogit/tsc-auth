@@ -11,13 +11,14 @@ import {
   useMediaQuery,
   useTheme,
 } from "@material-ui/core";
-import ArrowBackIosIcon from "@material-ui/icons/ArrowBackIos";
 import SaveIcon from "@material-ui/icons/Save";
 import { useHistory } from "react-router-dom";
 
-import { fetchUserDetails } from "../api/user";
 import EditProfileRow from "./EditProfileRow";
 import ProfileAvatar from "./ProfileAvatar";
+import BackButton from "../UI/BackButton";
+import useHttp from "../../hooks/useHttp";
+import { User } from "../../common/interfaces";
 
 interface PublicDetails {
   email: string;
@@ -63,7 +64,6 @@ const useStyles = makeStyles((theme: Theme) => ({
 
 const EditProfile = ({ token, userId }: Props) => {
   const [userDetails, setUserDetails] = useState<PublicDetails | null>(null);
-  const [failMessage, setFailMessage] = useState("");
 
   // Form state
   const [name, setName] = useState<string>("");
@@ -74,50 +74,43 @@ const EditProfile = ({ token, userId }: Props) => {
 
   const history = useHistory();
 
+  const { sendRequest, errorMessage, isLoading } = useHttp();
+
   const classes = useStyles();
   const theme = useTheme();
   const matches = useMediaQuery(theme.breakpoints.down("sm"));
 
   useEffect(() => {
-    const init = async () => {
-      try {
-        const json = await fetchUserDetails(userId, token);
+    const processUser = (data: { user: User }) => {
+      const user = data.user;
+      const profile = user.profile;
 
-        if (json.status === "fail") {
-          setFailMessage(json.data.reason);
-          return;
-        } else if (json.status === "error") {
-          setFailMessage(json.data.message);
-          throw new Error(json.data.message);
-        }
+      const details: PublicDetails = {
+        email: user.email,
+        name: profile && profile.name,
+        bio: profile && profile.bio,
+        phone: profile && profile.phone,
+        photoFilename: profile && profile.photo && profile.photo.filename,
+      };
 
-        const user = json.data.user;
-        const profile = user.profile;
-
-        const details: PublicDetails = {
-          email: user.email,
-          name: profile && profile.name,
-          bio: profile && profile.bio,
-          phone: profile && profile.phone,
-          photoFilename: profile && profile.photo && profile.photo.filename,
-        };
-
-        setUserDetails(details);
-        if (profile) {
-          setName(profile.name ? profile.name : "");
-          setBio(profile.bio ? profile.bio : "");
-          setPhone(profile.phone ? profile.phone : "");
-        }
-      } catch (error) {
-        console.log(error);
+      setUserDetails(details);
+      if (profile) {
+        setName(profile.name ? profile.name : "");
+        setBio(profile.bio ? profile.bio : "");
+        setPhone(profile.phone ? profile.phone : "");
       }
     };
-    init();
-  }, [userId, token]);
 
-  const backHandler = () => {
-    history.push("/");
-  };
+    sendRequest({
+      url: `http://localhost:8080/api/v1/user/${userId}`,
+      options: {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      },
+      processData: processUser,
+    });
+  }, [userId, token, sendRequest]);
 
   const changeHandler = (
     e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
@@ -162,7 +155,7 @@ const EditProfile = ({ token, userId }: Props) => {
     setPhotoFile(undefined);
   };
 
-  const submitHandler = async (e: React.FormEvent<HTMLFormElement>) => {
+  const submitHandler = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     const formData = new FormData();
@@ -173,45 +166,30 @@ const EditProfile = ({ token, userId }: Props) => {
       formData.append("photo", photoFile);
     }
 
-    try {
-      const response = await fetch(
-        `http://localhost:8080/api/v1/user/${userId}`,
-        {
-          method: "PUT",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-          body: formData,
-        }
-      );
+    const processEdit = (data: { user: User }) => {
+      const userId = data.user.userId;
+      alert(`User with id ${userId} successfully edited profile.`);
+      history.push(`/users/${userId}`);
+    };
 
-      const json = await response.json();
-
-      if (json.status === "fail") {
-        setFailMessage(json.data.reason);
-        return;
-      } else if (json.status === "error") {
-        setFailMessage(json.data.message);
-        throw new Error(json.data.message);
-      }
-
-      alert("Successfully Edited Profile!");
-      history.push("/");
-    } catch (error) {
-      console.log(error);
-    }
+    sendRequest({
+      url: `http://localhost:8080/api/v1/user/${userId}`,
+      options: {
+        method: "PUT",
+        body: formData,
+        headers: { Authorization: `Bearer ${token}` },
+      },
+      processData: processEdit,
+    });
   };
+
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <div>
-      <Button
-        color="primary"
-        onClick={backHandler}
-        startIcon={<ArrowBackIosIcon />}
-        className={classes.backBtn}
-      >
-        Back
-      </Button>
+      <BackButton backPath={`/users/${userId}`} />
       <Card className={classes.card}>
         <CardHeader
           title="Change Info"
@@ -225,7 +203,7 @@ const EditProfile = ({ token, userId }: Props) => {
           }}
         />
         <Typography align="center" className={classes.failText}>
-          {failMessage}
+          {errorMessage}
         </Typography>
         {userDetails && (
           <CardContent>

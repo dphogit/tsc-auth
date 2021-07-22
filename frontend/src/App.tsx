@@ -1,12 +1,12 @@
-import Container from "@material-ui/core/Container";
 import { useCallback, useEffect, useState } from "react";
-import { Switch, Route } from "react-router-dom";
-import { Helmet } from "react-helmet";
+import { Switch, Route, Redirect } from "react-router-dom";
 
 import AuthForm from "./components/AuthForm";
-import Navigation from "./components/Navigation";
-import MyProfile from "./components/MyProfile";
-import EditProfile from "./components/EditProfile";
+import EditProfile from "./components/Profile/EditProfile";
+import Users from "./components/Users/Users";
+import Layout from "./components/UI/Layout";
+import Navigation from "./components/UI/Navigation";
+import Profile from "./components/Profile/Profile";
 
 const App = () => {
   const [userId, setUserId] = useState<number>();
@@ -46,31 +46,22 @@ const App = () => {
   }, [setAutoLogout]);
 
   return (
-    <div className="application">
-      <Helmet>
-        <title>Authentication App</title>
-        <meta
-          name="description"
-          content="Authentication application created with React"
-        />
-        <link
-          rel="stylesheet"
-          href="https://fonts.googleapis.com/icon?family=Material+Icons"
-        />
-        <link
-          rel="stylesheet"
-          href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap"
-        />
-      </Helmet>
-      {userId && token && <Navigation logout={logoutHandler} />}
-      <Container maxWidth="md">
+    <div className="app">
+      {userId && token && <Navigation logout={logoutHandler} userId={userId} />}
+      <Layout>
         {userId && token ? (
           <Switch>
             <Route path="/edit" exact>
               <EditProfile userId={userId} token={token} />
             </Route>
+            <Route path="/users" exact>
+              <Users token={token} userId={userId} />
+            </Route>
+            <Route path="/users/:id" exact>
+              <Profile token={token} userId={userId} />
+            </Route>
             <Route path="/">
-              <MyProfile userId={userId} token={token} />
+              <Redirect to={`/users/${userId}`} />
             </Route>
           </Switch>
         ) : (
@@ -80,7 +71,7 @@ const App = () => {
             setAutoLogout={setAutoLogout}
           />
         )}
-      </Container>
+      </Layout>
     </div>
   );
 };
