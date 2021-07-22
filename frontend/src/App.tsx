@@ -5,7 +5,7 @@ import AuthForm from "./components/AuthForm";
 import EditProfile from "./components/Profile/EditProfile";
 import Users from "./components/Users/Users";
 import Layout from "./components/UI/Layout";
-import Navigation from "./components/UI/Navigation";
+import Navigation from "./components/UI/Navigation/Navigation";
 import Profile from "./components/Profile/Profile";
 
 const App = () => {

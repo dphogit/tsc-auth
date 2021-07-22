@@ -46,6 +46,7 @@ interface Props {
   setAutoLogout: (ms: number) => void;
 }
 
+// FIXME Memory leak due to changing state on unmount
 const AuthForm = ({ setUserId, setToken, setAutoLogout }: Props) => {
   const classes = useStyles();
 
@@ -74,9 +75,9 @@ const AuthForm = ({ setUserId, setToken, setAutoLogout }: Props) => {
     };
 
     if (isRegister) {
-      registerHandler(details);
+      await registerHandler(details);
     } else {
-      loginHandler(details);
+      await loginHandler(details);
     }
   };
 

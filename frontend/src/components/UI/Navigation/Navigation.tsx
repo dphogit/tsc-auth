@@ -1,5 +1,4 @@
-import React from "react";
-import { makeStyles, Theme, createStyles } from "@material-ui/core/styles";
+import React, { useRef } from "react";
 import AppBar from "@material-ui/core/AppBar";
 import Toolbar from "@material-ui/core/Toolbar";
 import IconButton from "@material-ui/core/IconButton";
@@ -11,45 +10,10 @@ import MoreIcon from "@material-ui/icons/MoreVert";
 import ExitToAppIcon from "@material-ui/icons/ExitToApp";
 import PeopleIcon from "@material-ui/icons/People";
 import { Link, useHistory } from "react-router-dom";
+import NavigationItem from "./NavigationItem";
+import MobileItem from "./MobileItem";
 
-const useStyles = makeStyles((theme: Theme) =>
-  createStyles({
-    grow: {
-      flexGrow: 1,
-      marginBottom: theme.spacing(8),
-      [theme.breakpoints.down("sm")]: {
-        marginBottom: theme.spacing(2),
-      },
-    },
-    menuButton: {
-      marginRight: theme.spacing(2),
-    },
-    title: {
-      [theme.breakpoints.down("sm")]: {
-        fontSize: theme.typography.subtitle2,
-      },
-    },
-    sectionDesktop: {
-      display: "none",
-      [theme.breakpoints.up("md")]: {
-        display: "flex",
-      },
-    },
-    sectionMobile: {
-      display: "flex",
-      [theme.breakpoints.up("md")]: {
-        display: "none",
-      },
-    },
-    menuLink: {
-      textDecoration: "none",
-      color: theme.palette.common.black,
-    },
-    mobileMenuItem: {
-      paddingLeft: 0,
-    },
-  })
-);
+import useStyles from "./styles";
 
 interface Props {
   userId: number;
@@ -67,10 +31,6 @@ const Navigation = ({ userId, logout }: Props) => {
 
   const isMenuOpen = Boolean(anchorEl);
   const isMobileMenuOpen = Boolean(mobileMoreAnchorEl);
-
-  const handleProfileMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
-    setAnchorEl(event.currentTarget);
-  };
 
   const handleMobileMenuClose = () => {
     setMobileMoreAnchorEl(null);
@@ -123,6 +83,10 @@ const Navigation = ({ userId, logout }: Props) => {
 
   // Mobile Responsive Specific Display For Menu
   const mobileMenuId = "primary-search-account-menu-mobile";
+  const peopleMobileRef = useRef<HTMLLIElement>(null!);
+  const accountCircleMobileRef = useRef<HTMLLIElement>(null!);
+  const logoutMobileRef = useRef<HTMLLIElement>(null!);
+
   const renderMobileMenu = (
     <Menu
       anchorEl={mobileMoreAnchorEl}
@@ -133,47 +97,30 @@ const Navigation = ({ userId, logout }: Props) => {
       open={isMobileMenuOpen}
       onClose={handleMobileMenuClose}
     >
-      <MenuItem
-        className={classes.mobileMenuItem}
+      <MobileItem
         onClick={handleUsersMenuClick}
-      >
-        <IconButton
-          aria-label="account of current user"
-          aria-controls="primary-search-account-menu"
-          aria-haspopup="true"
-          color="inherit"
-        >
-          <PeopleIcon />
-        </IconButton>
-        <p>Users</p>
-      </MenuItem>
-
-      <MenuItem
-        className={classes.mobileMenuItem}
+        ariaControls="primary-view-user-profiles-menu"
+        ariaLabel="view all other user profiles"
+        text="Users"
+        iconComponent={<PeopleIcon />}
+        ref={peopleMobileRef}
+      />
+      <MobileItem
         onClick={handleProfileMenuClick}
-      >
-        <IconButton
-          aria-label="account of current user"
-          aria-controls="primary-search-account-menu"
-          aria-haspopup="true"
-          color="inherit"
-        >
-          <AccountCircle />
-        </IconButton>
-        <p>Profile</p>
-      </MenuItem>
-
-      <MenuItem className={classes.mobileMenuItem} onClick={logout}>
-        <IconButton
-          aria-label="logout"
-          aria-controls="primary-logout-menu"
-          aria-haspopup="true"
-          color="inherit"
-        >
-          <ExitToAppIcon />
-        </IconButton>
-        <p>Logout</p>
-      </MenuItem>
+        ariaControls="primary-view-my-profile-menu"
+        ariaLabel="view my own profile"
+        text="Profile"
+        iconComponent={<AccountCircle />}
+        ref={accountCircleMobileRef}
+      />
+      <MobileItem
+        onClick={logout}
+        ariaControls="primary-logout-menu"
+        ariaLabel="log user out"
+        text="Logout"
+        iconComponent={<ExitToAppIcon />}
+        ref={logoutMobileRef}
+      />
     </Menu>
   );
 
@@ -186,16 +133,9 @@ const Navigation = ({ userId, logout }: Props) => {
           </Typography>
           <div className={classes.grow} />
           <div className={classes.sectionDesktop}>
-            <IconButton
-              edge="end"
-              aria-label="account of current user"
-              aria-controls={menuId}
-              aria-haspopup="true"
-              onClick={handleProfileMenuOpen}
-              color="inherit"
-            >
-              <AccountCircle />
-            </IconButton>
+            <NavigationItem path="/users" text="Users" />
+            <NavigationItem path={`users/${userId}`} text="My Profile" />
+            <NavigationItem path="/" text="Logout" onClick={logout} />
           </div>
           <div className={classes.sectionMobile}>
             <IconButton

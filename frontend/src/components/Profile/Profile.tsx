@@ -63,32 +63,28 @@ const ViewProfile = ({ token, userId }: Props) => {
   const matches = useMediaQuery(theme.breakpoints.down("sm"));
 
   useEffect(() => {
-    const init = async () => {
-      const processUser = (data: { user: User }) => {
-        const user = data.user;
-        setDetails({
-          id: user.userId,
-          email: user.email,
-          name: user.profile && user.profile.name,
-          bio: user.profile && user.profile.bio,
-          phone: user.profile && user.profile.phone,
-          photoFilename:
-            user.profile && user.profile.photo && user.profile.photo.filename,
-        });
-      };
-
-      fetchUser({
-        url: `http://localhost:8080/api/v1/user/${id}`,
-        options: {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        },
-        processData: processUser,
+    const processUser = (data: { user: User }) => {
+      const user = data.user;
+      setDetails({
+        id: user.userId,
+        email: user.email,
+        name: user.profile && user.profile.name,
+        bio: user.profile && user.profile.bio,
+        phone: user.profile && user.profile.phone,
+        photoFilename:
+          user.profile && user.profile.photo && user.profile.photo.filename,
       });
     };
 
-    init();
+    fetchUser({
+      url: `http://localhost:8080/api/v1/user/${id}`,
+      options: {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      },
+      processData: processUser,
+    });
   }, [fetchUser, token, id]);
 
   const editHandler = () => {
