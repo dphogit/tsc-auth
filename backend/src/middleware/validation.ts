@@ -12,12 +12,12 @@ export const validateRegister = [
 
 export const validateEditprofile = [
   body("name")
-    .matches(/^[a-zA-Z-'. ]+$/)
+    .matches(/^\s*$|^[a-zA-Z-'. ]+$/)
     .withMessage("Name contains invalid characters"),
   body("bio")
     .isLength({ max: 255 })
     .withMessage("Bio must be 255 characters or less"),
   body("phone")
-    .matches(/^[a-zA-Z0-9+ ]+$/)
+    .matches(/^\s*$|^[a-zA-Z0-9+ ]+$/)
     .withMessage("Invalid phone number"),
 ];

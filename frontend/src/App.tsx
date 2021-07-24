@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { Switch, Route, Redirect } from "react-router-dom";
 
-import AuthForm from "./components/AuthForm";
+import AuthForm from "./components/Auth/AuthForm";
 import EditProfile from "./components/Profile/EditProfile";
 import Users from "./components/Users/Users";
 import Layout from "./components/UI/Layout";

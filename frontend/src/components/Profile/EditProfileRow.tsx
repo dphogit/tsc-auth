@@ -8,6 +8,7 @@ interface Props {
   value?: string | null;
   paddingTop?: boolean;
   paddingBottom?: boolean;
+  errMsg: string;
   onChange: (
     e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
     field: string
@@ -65,6 +66,7 @@ const EditProfileRow = (props: Props) => {
           placeholder={placeholder}
           value={value}
           onChange={(e) => onChange(e, field)}
+          error={props.errMsg ? true : false}
         />
       </Grid>
     </Grid>

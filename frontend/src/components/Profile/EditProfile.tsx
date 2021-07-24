@@ -18,15 +18,7 @@ import EditProfileRow from "./EditProfileRow";
 import ProfileAvatar from "./ProfileAvatar";
 import BackButton from "../UI/BackButton";
 import useHttp from "../../hooks/useHttp";
-import { User } from "../../common/interfaces";
-
-interface PublicDetails {
-  email: string;
-  name: string | null;
-  bio: string | null;
-  phone: string | null;
-  photoFilename: string | null;
-}
+import { PublicDetails, User } from "../../common/interfaces";
 
 interface Props {
   token: string;
@@ -86,6 +78,7 @@ const EditProfile = ({ token, userId }: Props) => {
       const profile = user.profile;
 
       const details: PublicDetails = {
+        id: user.userId,
         email: user.email,
         name: profile && profile.name,
         bio: profile && profile.bio,
@@ -187,6 +180,11 @@ const EditProfile = ({ token, userId }: Props) => {
     return <div>Loading...</div>;
   }
 
+  const photoSrcAlternative =
+    userDetails && userDetails.photoFilename
+      ? `http://localhost:8080/photo/${userDetails.photoFilename}`
+      : undefined;
+
   return (
     <div>
       <BackButton backPath={`/users/${userId}`} />
@@ -211,11 +209,7 @@ const EditProfile = ({ token, userId }: Props) => {
               <Grid container direction="row" alignItems="center">
                 <Grid item className={classes.padLeft}>
                   <ProfileAvatar
-                    src={
-                      photoSrc
-                        ? photoSrc
-                        : `http://localhost:8080/photo/${userDetails.photoFilename}`
-                    }
+                    src={photoSrc ? photoSrc : photoSrcAlternative}
                     email={userDetails.email}
                     name={userDetails.name}
                     length="5rem"
@@ -243,6 +237,7 @@ const EditProfile = ({ token, userId }: Props) => {
                 value={name}
                 paddingTop
                 onChange={changeHandler}
+                errMsg={errorMessage}
               />
               <EditProfileRow
                 field="Bio"
@@ -251,6 +246,7 @@ const EditProfile = ({ token, userId }: Props) => {
                 textarea={true}
                 paddingTop
                 onChange={changeHandler}
+                errMsg={errorMessage}
               />
               <EditProfileRow
                 field="Phone"
@@ -259,6 +255,7 @@ const EditProfile = ({ token, userId }: Props) => {
                 paddingTop
                 paddingBottom
                 onChange={changeHandler}
+                errMsg={errorMessage}
               />
               <div className={classes.padLeft}>
                 <Button

@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 interface RequestConfig {
   url: RequestInfo;
@@ -29,6 +29,14 @@ const useHttp = () => {
   const [errorMessage, setErrorMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
+  const mounted = useRef(true);
+
+  useEffect(() => {
+    return () => {
+      mounted.current = false;
+    };
+  }, []);
+
   const sendRequest = useCallback(
     async ({ url, options, processData }: RequestConfig) => {
       setIsLoading(true);
@@ -57,7 +65,11 @@ const useHttp = () => {
         console.log(error);
       }
 
-      setIsLoading(false);
+      // Memory leak seems to occur here and this solves it.
+      // Probably need to relook in future
+      if (mounted.current) {
+        setIsLoading(false);
+      }
     },
     []
   );
@@ -66,6 +78,7 @@ const useHttp = () => {
     isLoading,
     errorMessage,
     sendRequest,
+    setErrorMessage,
   };
 };
 

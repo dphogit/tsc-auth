@@ -1,39 +1,12 @@
 import { useState, SyntheticEvent, SetStateAction, Dispatch } from "react";
 import Button from "@material-ui/core/Button";
 import TextField from "@material-ui/core/TextField";
-import { makeStyles, Theme } from "@material-ui/core/styles";
 import Typography from "@material-ui/core/Typography";
 import { useHistory } from "react-router-dom";
 
-import useHttp from "../hooks/useHttp";
-import { User } from "../common/interfaces";
-
-const useStyles = makeStyles((theme: Theme) => ({
-  submitBtn: {
-    marginTop: theme.spacing(2),
-  },
-  changeBtn: {
-    "&:hover": {
-      backgroundColor: "white",
-      textDecoration: "underline",
-    },
-    marginTop: theme.spacing(2),
-  },
-  heading: {
-    marginTop: theme.spacing(2),
-    fontWeight: "normal",
-  },
-  successText: {
-    backgroundColor: theme.palette.success.light,
-    borderColor: theme.palette.success.dark,
-    borderWidth: "1px",
-  },
-  failText: {
-    backgroundColor: theme.palette.error.light,
-    borderColor: theme.palette.error.dark,
-    borderWidth: "1px",
-  },
-}));
+import useStyles from "./styles";
+import useHttp from "../../hooks/useHttp";
+import { User } from "../../common/interfaces";
 
 interface Details {
   email: string;
@@ -46,7 +19,6 @@ interface Props {
   setAutoLogout: (ms: number) => void;
 }
 
-// FIXME Memory leak due to changing state on unmount
 const AuthForm = ({ setUserId, setToken, setAutoLogout }: Props) => {
   const classes = useStyles();
 
@@ -55,10 +27,11 @@ const AuthForm = ({ setUserId, setToken, setAutoLogout }: Props) => {
   const [isRegister, setIsRegister] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
 
-  const { sendRequest, errorMessage } = useHttp();
+  let { sendRequest, errorMessage, setErrorMessage } = useHttp();
 
   const toggleModeHandler = () => {
     setIsRegister((prevMode) => !prevMode);
+    setErrorMessage("");
   };
 
   const submitHandler = async (e: SyntheticEvent) => {
@@ -107,14 +80,14 @@ const AuthForm = ({ setUserId, setToken, setAutoLogout }: Props) => {
       expiresInMs: number;
     }) => {
       const { userId, token, expiresInMs } = data;
-
       setToken(token);
       setUserId(userId);
+      setAutoLogout(expiresInMs);
+
+      const expiryDate = new Date(new Date().getTime() + expiresInMs);
       localStorage.setItem("token", token);
       localStorage.setItem("userId", userId.toString());
-      const expiryDate = new Date(new Date().getTime() + expiresInMs);
       localStorage.setItem("expiryDate", expiryDate.toISOString());
-      setAutoLogout(expiresInMs);
       history.push(`/users/${userId}`);
     };
 

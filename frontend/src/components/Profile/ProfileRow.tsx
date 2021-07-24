@@ -1,5 +1,5 @@
 import { ReactNode } from "react";
-import { makeStyles, Grid, Theme, useTheme } from "@material-ui/core";
+import { Grid, useTheme, makeStyles, Theme } from "@material-ui/core";
 import useMediaQuery from "@material-ui/core/useMediaQuery";
 
 interface Props {

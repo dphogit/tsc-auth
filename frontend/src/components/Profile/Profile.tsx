@@ -17,6 +17,7 @@ import { PublicDetails, User } from "../../common/interfaces";
 import useHttp from "../../hooks/useHttp";
 import ProfileAvatar from "./ProfileAvatar";
 import ProfileRow from "./ProfileRow";
+import BackButton from "../UI/BackButton";
 
 interface Props {
   token: string;
@@ -179,7 +180,12 @@ const ViewProfile = ({ token, userId }: Props) => {
     content = <Typography variant="h2">Loading...</Typography>;
   }
 
-  return <div>{content}</div>;
+  return (
+    <div>
+      {!isOwnProfile && <BackButton backPath="/users" />}
+      {content}
+    </div>
+  );
 };
 
 export default ViewProfile;

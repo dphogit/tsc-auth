@@ -11,6 +11,7 @@ import {
 import useHttp from "../../hooks/useHttp";
 import { PublicDetails, User } from "../../common/interfaces";
 import UserCard from "./UserCard";
+import Paginator from "../UI/Paginator";
 
 interface Props {
   token: string;
@@ -24,10 +25,21 @@ const useStyles = makeStyles((theme: Theme) => ({
       marginTop: theme.spacing(1),
     },
   },
+  paginator: {
+    marginTop: theme.spacing(4),
+    marginBottom: theme.spacing(4),
+    [theme.breakpoints.down("sm")]: {
+      marginTop: theme.spacing(2),
+      marginBottom: theme.spacing(2),
+    },
+  },
 }));
 
 const Users = ({ token, userId }: Props) => {
   const [users, setUsers] = useState<PublicDetails[]>([]);
+  const [page, setPage] = useState(1);
+  const [hasNext, setHasNext] = useState(false);
+  const [hasPrev, setHasPrev] = useState(false);
 
   const classes = useStyles();
 
@@ -37,7 +49,11 @@ const Users = ({ token, userId }: Props) => {
   const match = useMediaQuery(theme.breakpoints.down("xs"));
 
   useEffect(() => {
-    const processUsers = (data: { users: User[] }) => {
+    const processUsers = (data: {
+      users: User[];
+      hasNext: boolean;
+      hasPrev: boolean;
+    }) => {
       const publicUsers: PublicDetails[] = data.users.map((user) => {
         return {
           id: user.userId,
@@ -50,10 +66,12 @@ const Users = ({ token, userId }: Props) => {
         };
       });
       setUsers(publicUsers);
+      setHasNext(data.hasNext);
+      setHasPrev(data.hasPrev);
     };
 
     fetchUsers({
-      url: "http://localhost:8080/api/v1/user",
+      url: `http://localhost:8080/api/v1/user?page=${page}`,
       options: {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -61,7 +79,15 @@ const Users = ({ token, userId }: Props) => {
       },
       processData: processUsers,
     });
-  }, [fetchUsers, token]);
+  }, [fetchUsers, token, page]);
+
+  const prevPageHandler = () => {
+    setPage((page) => page - 1);
+  };
+
+  const nextPageHandler = () => {
+    setPage((page) => page + 1);
+  };
 
   let usersList = <h2>No users found. Start adding some!</h2>;
 
@@ -79,7 +105,25 @@ const Users = ({ token, userId }: Props) => {
     );
   }
 
-  let content = usersList;
+  let content = (
+    <div>
+      {usersList}
+      <Grid
+        container
+        direction="row"
+        justifyContent="flex-end"
+        alignItems="center"
+        className={classes.paginator}
+      >
+        <Paginator
+          hasPrev={hasPrev}
+          hasNext={hasNext}
+          onPrev={prevPageHandler}
+          onNext={nextPageHandler}
+        />
+      </Grid>
+    </div>
+  );
 
   if (errorMessage) {
     alert(errorMessage);
@@ -87,7 +131,7 @@ const Users = ({ token, userId }: Props) => {
   }
 
   if (isLoading) {
-    content = <p>Loading Tasks...</p>;
+    content = <p>Loading Users...</p>;
   }
 
   return (

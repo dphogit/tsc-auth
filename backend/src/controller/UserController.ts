@@ -33,13 +33,28 @@ class UserController {
     }
   }
 
-  public async allUsers(_req: Request, res: Response, next: NextFunction) {
+  public async allUsers(req: Request, res: Response, next: NextFunction) {
+    const currentPage = req.query.page || 1;
+    const perPage = 4;
+    const userRepository = getRepository(User);
+
     try {
-      const users = await User.getAllUsers();
+      const total = await userRepository.count();
+      const users = await userRepository
+        .createQueryBuilder("user")
+        .where("user.userId != :userId", { userId: (req.user as User).userId })
+        .leftJoinAndSelect("user.profile", "profile")
+        .leftJoinAndSelect("profile.photo", "photo")
+        .skip((+currentPage - 1) * perPage)
+        .take(perPage)
+        .getMany();
+
+      const hasNext = parseInt(<string>currentPage) * perPage < total - 1;
+      const hasPrev = currentPage > 1;
 
       res.status(200).json({
         status: "success",
-        data: { users },
+        data: { users, hasNext, hasPrev },
       });
     } catch (error) {
       next(error);

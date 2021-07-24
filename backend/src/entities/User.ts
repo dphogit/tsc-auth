@@ -33,14 +33,6 @@ class User extends BaseEntity {
       .where("user.userId = :id", { id })
       .getOne();
   }
-
-  static getAllUsers() {
-    return getRepository(User)
-      .createQueryBuilder("user")
-      .leftJoinAndSelect("user.profile", "profile")
-      .leftJoinAndSelect("profile.photo", "photo")
-      .getMany();
-  }
 }
 
 export default User;
