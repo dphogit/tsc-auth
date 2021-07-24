@@ -12,13 +12,16 @@ import {
   useTheme,
 } from "@material-ui/core";
 import SaveIcon from "@material-ui/icons/Save";
+import ArrowBackIosIcon from "@material-ui/icons/ArrowBackIos";
 import { useHistory } from "react-router-dom";
 
 import EditProfileRow from "./EditProfileRow";
 import ProfileAvatar from "./ProfileAvatar";
-import BackButton from "../UI/BackButton";
 import useHttp from "../../hooks/useHttp";
 import { PublicDetails, User } from "../../common/interfaces";
+import LoadingCircle from "../UI/LoadingCircle";
+import DialogOk from "../UI/Dialog/DialogOk";
+import DialogConfirm from "../UI/Dialog/DialogConfirm";
 
 interface Props {
   token: string;
@@ -56,6 +59,9 @@ const useStyles = makeStyles((theme: Theme) => ({
 
 const EditProfile = ({ token, userId }: Props) => {
   const [userDetails, setUserDetails] = useState<PublicDetails | null>(null);
+  const [isSuccessful, setIsSuccessful] = useState(false);
+  const [fileIsInvalid, setFileIsInvalid] = useState(false);
+  const [isCancelling, setIsCancelling] = useState(false);
 
   // Form state
   const [name, setName] = useState<string>("");
@@ -139,7 +145,7 @@ const EditProfile = ({ token, userId }: Props) => {
         setPhotoFile(file);
       };
     } else {
-      alert("Invalid file type!");
+      setFileIsInvalid(true);
     }
   };
 
@@ -159,10 +165,8 @@ const EditProfile = ({ token, userId }: Props) => {
       formData.append("photo", photoFile);
     }
 
-    const processEdit = (data: { user: User }) => {
-      const userId = data.user.userId;
-      alert(`User with id ${userId} successfully edited profile.`);
-      history.push(`/users/${userId}`);
+    const processEdit = (_data: { user: User }) => {
+      setIsSuccessful(true);
     };
 
     sendRequest({
@@ -176,8 +180,28 @@ const EditProfile = ({ token, userId }: Props) => {
     });
   };
 
+  const dialogCloseHandler = () => {
+    if (isSuccessful) {
+      setIsSuccessful(false);
+      history.push(`/users/${userId}`);
+    }
+  };
+
+  const fileDialogCloseHandler = () => {
+    setFileIsInvalid(false);
+  };
+
   if (isLoading) {
-    return <div>Loading...</div>;
+    return (
+      <div>
+        <Card className={classes.card}>
+          <Typography variant="h4" align="center">
+            Loading...
+          </Typography>
+          <LoadingCircle />
+        </Card>
+      </div>
+    );
   }
 
   const photoSrcAlternative =
@@ -187,7 +211,14 @@ const EditProfile = ({ token, userId }: Props) => {
 
   return (
     <div>
-      <BackButton backPath={`/users/${userId}`} />
+      <Button
+        color="primary"
+        onClick={() => setIsCancelling(true)}
+        startIcon={<ArrowBackIosIcon />}
+        className={classes.backBtn}
+      >
+        Back
+      </Button>
       <Card className={classes.card}>
         <CardHeader
           title="Change Info"
@@ -271,6 +302,25 @@ const EditProfile = ({ token, userId }: Props) => {
           </CardContent>
         )}
       </Card>
+      <DialogOk
+        open={isSuccessful}
+        onClose={dialogCloseHandler}
+        contextText="Your profile has been updated! You can now view your changes."
+      />
+      <DialogOk
+        open={fileIsInvalid}
+        onClose={fileDialogCloseHandler}
+        contextText="Invalid file type! Make sure your file is PNG, JPG or JPEG."
+      />
+      <DialogConfirm
+        open={isCancelling}
+        onCancel={() => setIsCancelling(false)}
+        onConfirm={() => history.push(`/users/${userId}`)}
+        confirmText="Discard"
+        contextText="Going back will remove all unsaved changes to your profile."
+        confirmBtnColor="secondary"
+        title="Discard changes?"
+      />
     </div>
   );
 };

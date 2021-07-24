@@ -12,6 +12,7 @@ import useHttp from "../../hooks/useHttp";
 import { PublicDetails, User } from "../../common/interfaces";
 import UserCard from "./UserCard";
 import Paginator from "../UI/Paginator";
+import LoadingCircle from "../UI/LoadingCircle";
 
 interface Props {
   token: string;
@@ -126,18 +127,17 @@ const Users = ({ token, userId }: Props) => {
   );
 
   if (errorMessage) {
-    alert(errorMessage);
     content = <p>Something went wrong!</p>;
   }
 
   if (isLoading) {
-    content = <p>Loading Users...</p>;
+    content = <LoadingCircle />;
   }
 
   return (
     <>
       <Typography variant={match ? "h4" : "h2"} align="center">
-        Other Users
+        {isLoading ? "Loading Users" : "Other Users"}
       </Typography>
       <div>{content}</div>
     </>

@@ -1,7 +1,10 @@
 import { useState, SyntheticEvent, SetStateAction, Dispatch } from "react";
-import Button from "@material-ui/core/Button";
-import TextField from "@material-ui/core/TextField";
-import Typography from "@material-ui/core/Typography";
+import {
+  LinearProgress,
+  TextField,
+  Typography,
+  Button,
+} from "@material-ui/core";
 import { useHistory } from "react-router-dom";
 
 import useStyles from "./styles";
@@ -27,7 +30,7 @@ const AuthForm = ({ setUserId, setToken, setAutoLogout }: Props) => {
   const [isRegister, setIsRegister] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
 
-  let { sendRequest, errorMessage, setErrorMessage } = useHttp();
+  let { sendRequest, errorMessage, setErrorMessage, isLoading } = useHttp();
 
   const toggleModeHandler = () => {
     setIsRegister((prevMode) => !prevMode);
@@ -126,6 +129,7 @@ const AuthForm = ({ setUserId, setToken, setAutoLogout }: Props) => {
           {successMessage}
         </Typography>
       )}
+      {isLoading && <LinearProgress />}
       <TextField
         variant="outlined"
         margin="normal"
